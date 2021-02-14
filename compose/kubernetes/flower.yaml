@@ -45,9 +45,7 @@ metadata:
     service: celeryflower
 spec:
   ports:
-  - port: 80
+  - port: 5555
     targetPort: 5555
-    name: http
   selector:
     service: celeryflower
-  type: LoadBalancer
