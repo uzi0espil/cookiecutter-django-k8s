@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from django import forms
-import shutil
 import os
 
 User = get_user_model()
@@ -36,15 +35,6 @@ class UserCreationForm(admin_forms.UserCreationForm):
 
 
 class GalleryCreationForm(forms.ModelForm):
-
-    # def clean_image(self):
-    #     value = self.cleaned_data.get("image")
-    #     filename, ext = os.path.splitext(value.name)
-    #     new_name = "/app_temp/{}{}".format(slugify(self.data.get('name')), ext)
-    #
-    #     os.rename(value.temporary_file_path(), new_name)
-    #     value.file.name = new_name
-    #     return None
 
     def save(self, commit=True):
         print(self.cleaned_data['image'])
