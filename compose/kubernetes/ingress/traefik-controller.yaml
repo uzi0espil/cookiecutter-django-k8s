@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: production
+  name: traefik-ingress-controller
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: production
+  name: traefik
+  labels:
+    app: traefik
+    service: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik-ingress-controller
+      containers:
+      - name: traefik
+        image: gallerytestapp.azurecr.io/gallery_production_traefik
+        volumeMounts:
+          - mountPath: /etc/traefik/traefik.yml
+            name: config
+            subPath: traefik.yml
+          - mountPath: /opt/acme
+            name: acme
+            readOnly: False
+        args:
+          - --configfile=/etc/traefik/traefik.yml
+          - --api
+#          - --kubernetes
+          - --logLevel=INFO
+      volumes:
+        - name: config
+          configMap:
+            name: traefik-config
+        - name: acme
+          configMap:
+            name: traefik-acme
