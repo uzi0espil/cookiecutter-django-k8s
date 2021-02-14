@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: django
+  namespace: production
+  name: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: django
+  template:
+    metadata:
+      labels:
+        service: django
+    spec:
+      containers:
+      - args:
+        - /start
+        image: <CR_URL>/gallery_production_django
+        name: django
+        ports:
+          - name: gunicorn
+            containerPort: 5000
+        envFrom:
+          - configMapRef:
+              name: envs-production-django
+          - configMapRef:
+              name: envs-production-postgres
+          - secretRef:
+              name: secrets-production-django
+          - secretRef:
+              name: secrets-production-postgres
+        env:
+          - name: CELERY_BROKER_URL
+            value: $(REDIS_URL)
+          - name: DATABASE_URL
+            value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)
+        resources: {}
+        volumeMounts:
+          - mountPath: /app/gallery/media
+            name: media-azurefile
+        livenessProbe:
+          httpGet:
+            path: /healthy
+            port: gunicorn
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 2
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: gunicorn
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 2
+      restartPolicy: Always
+      volumes:
+        - name: media-azurefile
+          persistentVolumeClaim:
+            claimName: media-azurefile
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: production
+  name: django
+  labels:
+    service: django
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+    name: http
+  selector:
+    service: django
+  type: LoadBalancer

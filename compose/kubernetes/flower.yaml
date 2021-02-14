@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: celeryflower
+  namespace: production
+  name: celeryflower  # name should be anything put flower: https://github.com/mher/flower/issues/738
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: celeryflower
+  template:
+    metadata:
+      labels:
+        service: celeryflower
+    spec:
+      containers:
+      - args:
+        - /start-flower
+        envFrom:
+          - configMapRef:
+              name: envs-production-django
+          - configMapRef:
+              name: envs-production-postgres
+          - secretRef:
+              name: secrets-production-django
+          - secretRef:
+              name: secrets-production-postgres
+        image: <CR_URL>/gallery_production_flower
+        name: celeryflower
+        ports:
+          - containerPort: 5555
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: celeryflower
+  namespace: production
+  labels:
+    service: celeryflower
+spec:
+  ports:
+  - port: 80
+    targetPort: 5555
+    name: http
+  selector:
+    service: celeryflower
+  type: LoadBalancer

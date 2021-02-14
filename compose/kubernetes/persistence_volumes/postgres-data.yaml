@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: production
+  name: postgres-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: retain-azure-disk
+  resources:
+    requests:
+      storage: 1Gi
+status: {}

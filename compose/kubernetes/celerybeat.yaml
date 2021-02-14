@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: celerybeat
+  namespace: production
+  name: celerybeat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: celerybeat
+  template:
+    metadata:
+      labels:
+        service: celerybeat
+    spec:
+      containers:
+      - args:
+        - /start-celerybeat
+        envFrom:
+        - configMapRef:
+            name: envs-production-django
+        - configMapRef:
+            name: envs-production-postgres
+        - secretRef:
+            name: secrets-production-django
+        - secretRef:
+            name: secrets-production-postgres
+        image: <CR_URL>/gallery_production_celerybeat
+        name: celerybeat
+        resources: {}
+        volumeMounts:
+          - mountPath: /app/gallery/media
+            name: media-azurefile
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: media-azurefile
+          persistentVolumeClaim:
+            claimName: media-azurefile

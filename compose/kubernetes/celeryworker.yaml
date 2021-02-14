@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: celeryworker
+  namespace: production
+  name: celeryworker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      service: celeryworker
+  template:
+    metadata:
+      labels:
+        service: celeryworker
+    spec:
+      containers:
+      - name: celeryworker
+        image: <CR_URL>/gallery_production_celeryworker
+        args:
+          - /start-celeryworker
+        envFrom:
+          - configMapRef:
+              name: envs-production-django
+          - configMapRef:
+              name: envs-production-postgres
+          - secretRef:
+              name: secrets-production-django
+          - secretRef:
+              name: secrets-production-postgres
+        env:
+          - name: CELERY_BROKER_URL
+            value: $(REDIS_URL)
+          - name: DATABASE_URL
+            value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)
+        readinessProbe:
+          exec:
+            command: ["bash", "-c", "celery inspect ping -A config.celery_app -d celery@$HOSTNAME"]
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          successThreshold: 10
+        volumeMounts:
+          - mountPath: /app/gallery/media
+            name: media-azurefile
+      restartPolicy: Always
+      volumes:
+        - name: media-azurefile
+          persistentVolumeClaim:
+            claimName: media-azurefile
+      terminationGracePeriodSeconds: 3600  # depends on tasks.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0

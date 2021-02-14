@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: production
+  name: envs-production-django
+data:
+  DJANGO_SETTINGS_MODULE: "config.settings.production"
+  DJANGO_ADMIN_URL: "nxB0AWFHi204T2g7VxhVxJ5UYKMBQIjl/"
+  DJANGO_ALLOWED_HOSTS: "*"
+  DJANGO_SECURE_SSL_REDIRECT: "no"
+  DJANGO_ACCOUNT_ALLOW_REGISTRATION: "no"
+  WEB_CONCURRENCY: "4"
+  REDIS_URL: "redis://redis:6379/0"
+  CELERY_FLOWER_USER: debug

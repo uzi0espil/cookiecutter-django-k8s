@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: redis
+  namespace: production
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: redis
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        service: redis
+    spec:
+      containers:
+      - image: redis:5.0
+        name: redis
+      restartPolicy: Always
+      volumes: null
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: redis
+  namespace: production
+  name: redis
+spec:
+  ports:
+  - name: "6378"
+    protocol: TCP
+    port: 6379
+  selector:
+    service: redis
