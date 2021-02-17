@@ -24,7 +24,7 @@ data:
       letsencrypt:
         # https://docs.traefik.io/master/https/acme/#lets-encrypt
         acme:
-          email: "ousama.esbel@gmail.com"
+          email: "<your-email>"
           storage: /etc/traefik/acme/acme.json
           # https://docs.traefik.io/master/https/acme/#httpchallenge
           httpChallenge:
@@ -70,8 +70,6 @@ data:
             scheme: https
             permanent: true
         csrf:
-          # https://docs.traefik.io/master/middlewares/headers/#hostsproxyheaders
-          # https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
           headers:
             hostsProxyHeaders: ["X-CSRFToken"]
 

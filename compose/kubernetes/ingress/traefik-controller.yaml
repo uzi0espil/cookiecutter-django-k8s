@@ -36,7 +36,7 @@ spec:
         args:
           - --configfile=/etc/traefik/traefik.yml
           - --api
-#          - --kubernetes
+          - --kubernetes
           - --logLevel=INFO
       volumes:
         - name: config
