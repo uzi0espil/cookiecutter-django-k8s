@@ -1,0 +1,44 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: production
+  name: traefik
+  labels:
+    app: traefik
+    service: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      containers:
+      - name: traefik
+        image: traefik:v2.4
+        volumeMounts:
+          - mountPath: /etc/traefik
+            name: all-in-one
+        args:
+          - --configfile=/etc/traefik/traefik.yml
+          - --api
+          - --kubernetes
+          - --logLevel=INFO
+      volumes:
+        - name: all-in-one
+          projected:
+            sources:
+            - configMap:
+                name: traefik-config
+                items:
+                  - key: traefik.yml
+                    path: traefik.yml
+            - configMap:
+                name: traefik-acme
+                items:
+                  - key: acme.json
+                    path: acme/acme.json
+                    mode: 0600

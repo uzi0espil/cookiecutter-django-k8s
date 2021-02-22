@@ -43,17 +43,3 @@ services:
     <<: *django
     image: ${CR_URL}/gallery_production_flower
     command: /start-flower
-
-  traefik:
-    build:
-      context: .
-      dockerfile: ./compose/production/traefik/Dockerfile
-    image: ${CR_URL}/gallery_production_traefik
-    depends_on:
-      - django
-    volumes:
-      - production_traefik:/etc/traefik/acme
-    ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
-      - "0.0.0.0:5555:5555"

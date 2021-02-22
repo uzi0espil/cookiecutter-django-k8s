@@ -1,0 +1,78 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  namespace: production
+  name: traefik-config
+data:
+  traefik.yml: |-
+    log:
+      level: INFO
+    entryPoints:
+      web:
+        # http
+        address: ":80"
+      web-secure:
+        # https
+        address: ":443"
+      celeryflower:
+        address: ":5555"
+    certificatesResolvers:
+      letsencrypt:
+        # https://docs.traefik.io/master/https/acme/#lets-encrypt
+        acme:
+          email: "<your-email>"
+          storage: /etc/traefik/acme/acme.json
+          # https://docs.traefik.io/master/https/acme/#httpchallenge
+          httpChallenge:
+            entryPoint: web
+    http:
+      routers:
+        web-router:
+          rule: "Host(`<your-URL>`) || Host(`www.<your-URL>`)"
+          entryPoints:
+            - web
+          middlewares:
+            - redirect
+            - csrf
+          service: django
+        web-secure-router:
+          rule: "Host(`<your-URL>`) || Host(`www.<your-URL>`)"
+          entryPoints:
+            - web-secure
+          middlewares:
+            - csrf
+          service: django
+          tls:
+            # https://docs.traefik.io/master/routing/routers/#certresolver
+            certResolver: letsencrypt
+        celeryflower-secure-router:
+          rule: "Host(`<your-URL>`)"
+          entryPoints:
+            - celeryflower
+          service: celeryflower
+          tls:
+            # https://docs.traefik.io/master/routing/routers/#certresolver
+            certResolver: letsencrypt
+      middlewares:
+        redirect:
+          # https://docs.traefik.io/master/middlewares/redirectscheme/
+          redirectScheme:
+            scheme: https
+            permanent: true
+        csrf:
+          headers:
+            hostsProxyHeaders: ["X-CSRFToken"]
+      services:
+        django:
+          loadBalancer:
+            servers:
+              - url: http://django:5000
+        celeryflower:
+          loadBalancer:
+            servers:
+              - url: http://celeryflower:5555
+    providers:
+      # https://docs.traefik.io/master/providers/file/
+      file:
+        filename: /etc/traefik/traefik.yml
+        watch: true

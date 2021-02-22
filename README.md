@@ -81,4 +81,9 @@ Then, create the application in the cluster:
 kubectl apply -f compose/kubernetes/.
 ~~~
 
-For adding traefik as ingress controller, please check traefik branch.
+To add traefik as ingress controller:
+
+1. create traefik services: `kubectl apply -f compose/kubernetes/ingress/traefik-service.yaml`
+2. Get the external IP address and assign a domain name to the IP address.
+3. Make sure traefik's ConfigMaps are created: `kubectl apply -f compose/kubernetes/configmaps/.`   
+3. After DNS records have been updated, create the traefik controller: `kubectl apply -f compose/kubernetes/ingress/traefik-controller.yaml`

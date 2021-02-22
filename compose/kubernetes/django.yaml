@@ -72,9 +72,8 @@ metadata:
     service: django
 spec:
   ports:
-  - port: 80
+  - port: 5000
     targetPort: 5000
     name: http
   selector:
     service: django
-  type: LoadBalancer
