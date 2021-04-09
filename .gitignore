@@ -7,6 +7,8 @@ __pycache__/
 # C extensions
 *.so
 
+.idea
+
 # env files
 .env
 compose/kubernetes/secrets/pv.yaml
@@ -282,4 +284,9 @@ gallery/media/
 .envs/*
 
 !.envs/.local/
+!.envs/.production
 
+# act
+.actrc
+act/
+.github/.secrets

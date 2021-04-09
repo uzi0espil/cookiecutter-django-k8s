@@ -1,0 +1,77 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  NAMESPACE: "production"
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  build:
+    environment: production
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Get Release Version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Build Docker Images
+        run: docker-compose -f production.yml pull
+
+      - name: Tag and Push Images
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/scripts/push-images.sh"
+          "${GITHUB_WORKSPACE}/.github/scripts/push-images.sh ${{ steps.get_version.outputs.VERSION }}"
+
+  deploy:
+    runs-on: ubuntu-18.04
+    environment: production
+    needs: build
+    steps:
+
+      - name: Checkout Code Repository
+        uses: actions/checkout@v2
+
+      - name: Set AKS Cluster
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_ACCESS_INFO }}'
+          cluster-name: '${{ secrets.CLUSTER_NAME }}'
+          resource-group: '${{ secrets.RESOURCE_GROUP }}'
+
+      - name: Get Release Version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Get Manifests List
+        id: get_manifests
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/scripts/list-manifests.sh"
+          echo ::set-output name=MANIFESTS::$("${GITHUB_WORKSPACE}/.github/scripts/list-manifests.sh")
+
+      - name: Get Images List
+        id: get_images
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/scripts/list-images.sh"
+          echo ::set-output name=IMAGES::$("${GITHUB_WORKSPACE}/.github/scripts/list-images.sh" ${{ steps.get_version.outputs.VERSION }})
+
+      - name: Deploy to Cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: ${{ steps.get_manifests.outputs.MANIFESTS }}
+          images: ${{ steps.get_images.outputs.IMAGES }}
+          namespace: ${{ env.NAMESPACE }}

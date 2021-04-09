@@ -1,0 +1,33 @@
+name: Master-CI
+
+# Enable Buildkit and let compose use it to speed up image building
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+on:
+  push:
+    branches: [ "master"]
+    paths-ignore: [ "docs/**" ]
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v2
+
+      - name: Build the Stack
+        run: docker-compose -f production.yml build
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push Images
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/push-images.sh"
+          "${GITHUB_WORKSPACE}/.github/push-images.sh"

@@ -1,4 +1,4 @@
-name: CI
+name: Pull-Request-CI
 
 # Enable Buildkit and let compose use it to speed up image building
 env:
@@ -7,13 +7,8 @@ env:
 
 on:
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main"]
     paths-ignore: [ "docs/**" ]
-
-  push:
-    branches: [ "master" ]
-    paths-ignore: [ "docs/**" ]
-
 
 jobs:
   flake8:
@@ -43,14 +38,12 @@ jobs:
 
       - name: Checkout Code Repository
         uses: actions/checkout@v2
+
       - name: Build the Stack
         run:  docker-compose -f local.yml build
 
-      - name: Make DB Migrations
+      - name: Run DB Migrations
         run:  docker-compose -f local.yml run --rm django python manage.py migrate
-
-      - name: Run the Stack
-        run:  docker-compose -f local.yml up -d
 
       - name: Run Django Tests
         run:  docker-compose -f local.yml run --rm django pytest
