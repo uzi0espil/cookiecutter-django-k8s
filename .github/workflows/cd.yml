@@ -9,6 +9,7 @@ env:
   NAMESPACE: "production"
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
+  CR_URL: "${{ secrets.CR_URL }}"
 
 jobs:
   versioning:
