@@ -11,17 +11,17 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
-  build:
+  versioning:
     environment: production
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v2
 
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.REGISTRY_NAME }}.azurecr.io
+          login-server: ${{ secrets.CR_URL }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
@@ -35,7 +35,7 @@ jobs:
       - name: Tag and Push Images
         run: |
           chmod +x "${GITHUB_WORKSPACE}/.github/scripts/push-images.sh"
-          "${GITHUB_WORKSPACE}/.github/scripts/push-images.sh ${{ steps.get_version.outputs.VERSION }}"
+          "${GITHUB_WORKSPACE}/.github/scripts/push-images.sh" ${{ steps.get_version.outputs.VERSION }}
 
   deploy:
     runs-on: ubuntu-18.04
@@ -72,6 +72,6 @@ jobs:
       - name: Deploy to Cluster
         uses: azure/k8s-deploy@v1
         with:
-          manifests: ${{ steps.get_manifests.outputs.MANIFESTS }}
-          images: ${{ steps.get_images.outputs.IMAGES }}
-          namespace: ${{ env.NAMESPACE }}
+          manifests: '${{ steps.get_manifests.outputs.MANIFESTS }}'
+          images: '${{ steps.get_images.outputs.IMAGES }}'
+          namespace: '${{ env.NAMESPACE }}'

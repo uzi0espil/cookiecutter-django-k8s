@@ -2,15 +2,15 @@
 
 arrManifests=()
 
-for FILE in compose/kubernetes/configmaps/*.yaml; do
+for FILE in ${GITHUB_WORKSPACE}/compose/kubernetes/configmaps/*.yaml; do
         arrManifests+=($FILE)
 done
 
-for FILE in compose/kubernetes/secrets/*.yaml; do
+for FILE in ${GITHUB_WORKSPACE}/compose/kubernetes/secrets/*.yaml; do
         arrManifests+=($FILE)
 done
 
-for FILE in compose/kubernetes/*.yaml; do
+for FILE in ${GITHUB_WORKSPACE}/compose/kubernetes/*.yaml; do
         arrManifests+=($FILE)
 done
 
