@@ -71,7 +71,7 @@ jobs:
           echo ::set-output name=IMAGES::$("${GITHUB_WORKSPACE}/.github/scripts/list-images.sh" ${{ steps.get_version.outputs.VERSION }})
 
       - name: Deploy to Cluster
-        uses: azure/k8s-deploy@v1
+        uses: azure/k8s-deploy@v1.4
         with:
           manifests: '${{ steps.get_manifests.outputs.MANIFESTS }}'
           images: '${{ steps.get_images.outputs.IMAGES }}'
