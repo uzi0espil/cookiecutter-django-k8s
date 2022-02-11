@@ -4,6 +4,13 @@ This simple web application extends [Django Cookiecutter](https://github.com/pyd
 application in microservices manner. Moreover, Kubernetes Manifests are added to orchestrate how the applications 
 communicate with each other and deploy the production in **Azure Kubernetes Cluster**.
 
+The steps for reproducing the project from fresh Django Cookiecutter project can be by going through the following chain of tutorials:
+
+- [Hands-on Day 1 and Day 2 Operations in Kubernetes using Django and AKS - Part 1](https://medium.com/compredict/hands-on-day-1-and-day-2-operations-in-kubernetes-using-django-and-aks-part-1-2c5aa7e683ef): Setup the production cluster and private container repository.
+- [Hands-on Day 1 and Day 2 Operations in Kubernetes using Django and AKS - Part 2](https://medium.com/compredict/hands-on-day-1-and-day-2-operations-in-kubernetes-using-django-and-aks-part-2-970f1d82b65f): Discuss's how to manage the application's environment variables and configurations as well as how to set up the volume profiles that will be mounted onto the containers.
+- [Hands-on Day 1 and Day 2 Operations in Kubernetes using Django and AKS - Part 3](https://medium.com/compredict/hands-on-day-1-and-day-2-operations-in-kubernetes-using-django-and-aks-part-3-1bf09984b6ee): Deploy, monitor and define update strategies for the services including setting up Traefik as Ingress Controller
+- [Hands-on Day 1 and Day 2 Operations in Kubernetes using Django and AKS - Part 4](https://medium.com/compredict/hands-on-day-1-and-day-2-operations-in-kubernetes-using-django-and-aks-part-4-31988816cab1): DevOps and Auto Deployment using Github Actions
+
 ## Web Application
 
 The application consists of the following components:
